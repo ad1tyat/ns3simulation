@@ -1,9 +1,5 @@
-import sys
 import dpkt
-import struct
-import socket
 import binascii
-
 
 l = ['0', '256','512','1000']
 

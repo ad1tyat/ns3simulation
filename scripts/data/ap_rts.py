@@ -1,15 +1,10 @@
-import sys
 import dpkt
-import struct
-import socket
-import itertools
 import binascii
 
 l = ['0','256','512','1000']
 
 outarr= ['node1_rts.txt', 'node0_rts.txt', 'node2_rts.txt']
 inarr = ['/AccessPoint-1-0.pcap', '/Station-0-0.pcap', '/Station-2-0.pcap']
-
 
 for i in range(3):
 	out = open(outarr[i],'w')
@@ -39,4 +34,3 @@ for i in range(3):
 		out.write(str(x)+' '+ele2+'\n')
 
 	out.close()
-
