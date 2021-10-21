@@ -22,16 +22,9 @@
 #include <iostream>
 #include <cstdlib>
 
-/*
-We have referenced the documentation of ns3 3.28 version for writing the code.
-Online Link of the file/example in official documentation which was actually written for 2 nodes:: 
-https://www.nsnam.org/doxygen/wifi-tcp_8cc_source.html 
-*/
 
-NS_LOG_COMPONENT_DEFINE("Network Simulator Assignment");
 using namespace ns3;
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
-
 
 int GenerateRandomNumber()
 {
@@ -99,13 +92,9 @@ int main(int argc,char *argv[])
   staWifiNode2.Create(1);
   Ptr<Node> apWifiNode = apNode.Get(0);
   NodeContainer staWifiNodes;
-  for(int ii=0;ii<2;ii++)
-  {
-    if(ii==0)
-      staWifiNodes.Add(staWifiNode1);
-    else if(ii==1)
-      staWifiNodes.Add(staWifiNode2);  
-  }
+  staWifiNodes.Add(staWifiNode1);
+  staWifiNodes.Add(staWifiNode2);
+
   // Configure AP 
   Ssid ssid = Ssid ("network");
   mac.SetType ("ns3::ApWifiMac","Ssid", SsidValue (ssid));
@@ -127,6 +116,7 @@ int main(int argc,char *argv[])
   position->Add (Vector (5.0, 500.0, 0.0));
   mobility.SetPositionAllocator(position);
   mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+  
   int j=0;
   NodeContainer::Iterator i;
   std::cout<<"Nodes related to mobility in order are:: ";
@@ -145,6 +135,7 @@ int main(int argc,char *argv[])
       std::cout<<"\n";
     }
   }
+  
  // Internet stack 
   InternetStackHelper stack;
   NodeContainer nodes;
@@ -203,14 +194,14 @@ int main(int argc,char *argv[])
   std::cout<<"Hello!! RandomNumber Generated is:: "<<x<<"\n";
   double x_double=(double)x*1.0;
   serverApp.Start (Seconds (x_double));
-  Simulator::Schedule (Seconds (y+0.1), &CalculateThroughput);
+  Simulator::Schedule (Seconds (x_double + 0.1), &CalculateThroughput);
 
   // Using ns3 PCAP for tracing
   wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
   wifiPhy.EnablePcap ("AccessPoint", apDevice);
   wifiPhy.EnablePcap ("Station", staDevices);
 
-  Simulator::Stop (Seconds (simulationTime + y));
+  Simulator::Stop (Seconds (simulationTime + x_double));
   Simulator::Run ();
   fm->SerializeToXmlFile("Westwood_256.xml",true,true);  
   Simulator::Destroy ();
