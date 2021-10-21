@@ -32,26 +32,7 @@ NS_LOG_COMPONENT_DEFINE("Network Simulator Assignment");
 using namespace ns3;
 Ptr<PacketSink> sink;                         /* Pointer to the packet sink application */
 
-void setTCPVariant(std::string tcpVariant)
-{
-  if (tcpVariant.compare ("ns3::TcpWestwood") == 0)
-    { 
-      // TcpWestwoodPlus is not an actual TypeId name; we need TcpWestwood here
-      Config::SetDefault ("ns3::TcpL4Protocol::SocketType", TypeIdValue (TcpWestwood::GetTypeId ()));
-      // the default protocol type in ns3::TcpWestwood is WESTWOOD
-      Config::SetDefault ("ns3::TcpWestwood::ProtocolType", EnumValue (TcpWestwood::WESTWOOD));
-    }
-  else if(tcpVariant.compare("ns3::TcpHybla") == 0)
-  {
-      Config::SetDefault ("ns3::TcpL4Protocol::SocketType", TypeIdValue (TcpHybla::GetTypeId()));
-  }
-  else
-    {
-      TypeId tcpTid;
-      NS_ABORT_MSG_UNLESS (TypeId::LookupByNameFailSafe (tcpVariant, &tcpTid), "TypeId " << tcpVariant << " not found");
-      Config::SetDefault ("ns3::TcpL4Protocol::SocketType", TypeIdValue (TypeId::LookupByName (tcpVariant)));
-    }
-}
+
 int GenerateRandomNumber()
 {
   std::srand(time(NULL));
@@ -65,16 +46,6 @@ void SetDefault(uint32_t payload)
   Config::SetDefault("ns3::WifiRemoteStationManager::RtsCtsThreshold",StringValue(RtsCtsThreshold));
   Config::SetDefault("ns3::WifiRemoteStationManager::FragmentationThreshold",StringValue(FragmentationThreshold));
   Config::SetDefault("ns3::TcpSocket::SegmentSize",UintegerValue(payload));
-}
-void getValues(std::string *datarate,uint32_t *payload,std::string *tcpVariant)
-{
-  std::cout<<"enter the values of the following:: \n";
-  std::cout<<"datarate in Mbps:: ";
-  std::cin>>(*datarate);
-  std::cout<<"payload in bytes:: ";
-  std::cin>>(*payload);
-  std::cout<<"tcp variant TcpWestwood/TcpHybla:: ";
-  std::cin>>(*tcpVariant);
 }
 void CalculateThroughput ()
 {
@@ -92,17 +63,13 @@ int main(int argc,char *argv[])
   std::string datarate = "100";           //default taken as 100Mbps
   std::string tcpVariant = "TcpWestwood";
   std::string phyRate = "HtMcs7";
-  double simulationTime = 10;             //default 50seconds in the question
-  bool pcapTracing = true;                // PCAP Tracing is enabled or not
-
-  getValues(&datarate,&payload,&tcpVariant);   //get parameters
+  
+  double simulationTime = 50;             //default 50seconds in the question
   SetDefault(payload);
   datarate = datarate + std::string("Mbps");
-  tcpVariant = std::string ("ns3::") + tcpVariant;
-  setTCPVariant(tcpVariant);
 
-  std::cout<<"DataRate is:: "<<datarate<<",PayLoad is:: "<<payload<<"bytes and"<<" TcpVariant is:: "<<tcpVariant<<"\n";
-
+  Config::SetDefault ("ns3::TcpL4Protocol::SocketType", TypeIdValue (TcpWestwood::GetTypeId ()));
+  Config::SetDefault ("ns3::TcpWestwood::ProtocolType", EnumValue (TcpWestwood::WESTWOOD));
   WifiMacHelper mac;
   WifiHelper wifiHelper;
   wifiHelper.SetStandard(WIFI_PHY_STANDARD_80211n_5GHZ);
@@ -231,35 +198,22 @@ int main(int argc,char *argv[])
 
   // Start Applications in random (0,5) create tcp connection between node 1,0/node 2,1
   sinkApp.Start (Seconds (0.0));
+
   int x= GenerateRandomNumber();
   std::cout<<"Hello!! RandomNumber Generated is:: "<<x<<"\n";
-  double y=(double)x*1.0;
-  serverApp.Start (Seconds (y));
+  double x_double=(double)x*1.0;
+  serverApp.Start (Seconds (x_double));
   Simulator::Schedule (Seconds (y+0.1), &CalculateThroughput);
 
-  // Enable Traces
-  if (pcapTracing)
-    {
-      wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
-      wifiPhy.EnablePcap ("AccessPoint", apDevice);
-      wifiPhy.EnablePcap ("Station", staDevices);
-    }
+  // Using ns3 PCAP for tracing
+  wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
+  wifiPhy.EnablePcap ("AccessPoint", apDevice);
+  wifiPhy.EnablePcap ("Station", staDevices);
+
   Simulator::Stop (Seconds (simulationTime + y));
-
-  // AsciiTraceHelper ascii;
-  // staWifiNodes.EnableAsciiAll (ascii.CreateFileStream ("sta.tr"));
-  // apWifiNode.EnableAsciiAll(ascii.CreateFileStream("ap.tr"));
-
   Simulator::Run ();
-  fm->SerializeToXmlFile("2.xml",true,true);
+  fm->SerializeToXmlFile("Westwood_256.xml",true,true);  
   Simulator::Destroy ();
 
-  double averageThroughput = ((sink->GetTotalRx () * 8) / (1e6  * simulationTime));
-  // if (averageThroughput < 50)
-  //   {
-  //     NS_LOG_ERROR ("Obtained throughput is not in the expected boundaries!");
-  //     exit (1);
-  //   }
-  std::cout << "\nAverage throughput: " << averageThroughput << " Mbit/s" << std::endl;
   return 0;
 }
