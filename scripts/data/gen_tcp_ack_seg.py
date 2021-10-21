@@ -1,18 +1,22 @@
 import dpkt
 import binascii
 
-l = ['0', '256','512','1000']
+rts_sizes = ['0', '256','512','1000']
 
 outarr= ['tcp_ack_node1.txt', 'tcp_ack_node0.txt', 'tcp_ack_node2.txt']
 outarr1= ['tcp_seg_node1.txt', 'tcp_seg_node0.txt', 'tcp_seg_node2.txt']
 inarr = ['/AccessPoint-1-0.pcap', '/Station-0-0.pcap', '/Station-2-0.pcap']
+
+
+def ratio(x):
+	return (x*8.00)/(1024*1024*50)
 
 for i in range(3):
 
 	out=open(outarr[i],'w')
 	out1=open(outarr1[i],'w')
 
-	for rts_thres in l:
+	for rts_thres in rts_sizes:
 		ele1=rts_thres
 		filename = 'assignment-4-data/'+ele1+inarr[i]
 		f = open(filename, 'rb')
@@ -43,8 +47,8 @@ for i in range(3):
 				zz =1
 
 
-		x1 = (frame_tcp_Ack_total*8.00)/(1024*1024*50)
-		x2 = (frame_tcp_seg_total*8.00)/(1024*1024*50)
+		x1 = ratio(frame_tcp_Ack_total)
+		x2 = ratio(frame_tcp_seg_total)
 		out.write(ele1+' '+str(x1)+'\n')
 		out1.write(ele1+' '+str(x2)+'\n')
 

@@ -1,15 +1,19 @@
 import dpkt
 import binascii
 
-l = ['0','256','512','1000']
+rts_sizes = ['0', '256', '512', '1000']
 
-outarr= ['node1_rts.txt', 'node0_rts.txt', 'node2_rts.txt']
+outarr= ['node1_cts.txt', 'node0_cts.txt', 'node2_cts.txt']
 inarr = ['/AccessPoint-1-0.pcap', '/Station-0-0.pcap', '/Station-2-0.pcap']
 
+def ratio(x):
+	return (x*8.00)/(1024*1024*50)
+
 for i in range(3):
+
 	out = open(outarr[i],'w')
 
-	for rts_thres in l:
+	for rts_thres in rts_sizes:
 		ele1=rts_thres
 		filename = 'assignment-4-data/'+ele1+ inarr[i]
 		f = open(filename, 'rb')
@@ -26,11 +30,10 @@ for i in range(3):
 			sequenceControl = packet[t_len + 22:t_len + 24]
 			wlan = dpkt.ieee80211.IEEE80211(ieee80211Frame)
 
-			if wlan.subtype == dpkt.ieee80211.C_RTS:
+			if wlan.subtype == dpkt.ieee80211.C_CTS:
 				frame_rts_total  = frame_rts_total + len(packet)
 				frame_rts = frame_rts + 1
-		x = (frame_rts_total*8.00)/(1024*1024*50)
+		x = ratio(frame_rts_total)
 		ele2 = rts_thres
 		out.write(str(x)+' '+ele2+'\n')
-
 	out.close()
