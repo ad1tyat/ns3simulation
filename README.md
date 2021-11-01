@@ -1,10 +1,13 @@
 # Assignment 4 README
 
+**NOTE**: Running ns3 simulation requires **python2**, while the analysis scripts use **python3**. Please ensure both are available on the system.  
 ## Setup of ns3
 
 Download ns3 3.28.1 : https://www.nsnam.org/release/ns-allinone-3.28.1.tar.bz2
 
 Build ns3 by following these instructions https://www.nsnam.org/docs/release/3.28/tutorial/singlehtml/index.html#building-ns3
+
+In the `ns-3.28.1` directory in the file `waf`, change the first line to `#!/usr/bin/env python2` to ensure it is run using python2.
 
 ## Compiling simulation.cc
 
@@ -36,24 +39,29 @@ Copy the following file `ns-3.28.1/src/flow-monitor/examples/flowmon-parse-resul
 Run
 
 ```bash
-python flowmon-parse-results.py Westwood_256.xml
+python2 flowmon-parse-results.py Westwood_256.xml
 ```
 
 You can see the output on terminal now
 
-**Note** : Please ensure either python2 or python3 is installed on your system. Both shall work, but python2 is used in above command. 
-
+**Note** : Please ensure both python2 and python3 are installed on your system. The ns3 core uses python2 whilst the packet analysis is done using python3.
 ### Analysing .pcap 
 
 Scripts are in `scripts/data` folder in submission 
 
 in that folder make a folder named exactly `assignment-4-data`and 4 subfolders named : "0","256", "512","1000". Copy the pcaps in each subfolder. [Or see note below]
 
+The scripts will be run using python3. We will also need to install `dpkt` package.
 ```bash
-python gen_ack.py
-python gen_cts.py
-python gen_rts.py
-python gen_tcp_ack_seg.py
+pip install dpkt
+```
+
+Now to run the scripts:
+```bash
+python3 gen_ack.py
+python3 gen_cts.py
+python3 gen_rts.py
+python3 gen_tcp_ack_seg.py
 ```
 
 Now they will produce .txt files which will have labelled data.
@@ -61,11 +69,11 @@ Now they will produce .txt files which will have labelled data.
 Paste the text file data into graph scripts located in `scripts/graph` folder
 
 ```
-python graph_ack.py
-python graph_cts.py
-python graph_rts.py
-python graph_tcp_ack.py
-python graph_tcp_seg.py
+python3 graph_ack.py
+python3 graph_cts.py
+python3 graph_rts.py
+python3 graph_tcp_ack.py
+python3 graph_tcp_seg.py
 ```
 
 Hence we get output of graphs, you can export them in any image or pdf format. 
